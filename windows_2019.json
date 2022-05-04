@@ -1,48 +1,6 @@
 {
   "builders": [
     {
-      "accelerator": "kvm",
-      "boot_wait": "0s",
-      "communicator": "winrm",
-      "cpus": 2,
-      "disk_size": "{{user `disk_size`}}",
-      "floppy_files": [
-        "{{user `autounattend`}}",
-        "./scripts/disable-screensaver.ps1",
-        "./scripts/disable-winrm.ps1",
-        "./scripts/enable-winrm.ps1",
-        "./scripts/microsoft-updates.bat",
-        "./scripts/unattend.xml",
-        "./scripts/sysprep.bat",
-        "./scripts/win-updates.ps1"
-      ],
-      "headless": true,
-      "iso_checksum": "{{user `iso_checksum`}}",
-      "iso_url": "{{user `iso_url`}}",
-      "memory": "{{user `memory`}}",
-      "output_directory": "windows_2019-qemu",
-      "qemuargs": [
-        [
-          "-drive",
-          "file=windows_2019-qemu/{{ .Name }},if=virtio,cache=writeback,discard=ignore,format=qcow2,index=1"
-        ],
-        [
-          "-drive",
-          "file={{ user `iso_url` }},media=cdrom,index=2"
-        ],
-        [
-          "-drive",
-          "file={{ user `virtio_win_iso` }},media=cdrom,index=3"
-        ]
-      ],
-      "shutdown_command": "a:/sysprep.bat",
-      "type": "qemu",
-      "vm_name": "WindowsServer2019",
-      "winrm_password": "vagrant",
-      "winrm_timeout": "{{user `winrm_timeout`}}",
-      "winrm_username": "vagrant"
-    },
-    {
       "boot_wait": "0s",
       "communicator": "winrm",
       "configuration_version": "8.0",
@@ -157,13 +115,20 @@
     {
       "scripts": [
         "./scripts/vm-guest-tools.ps1",
-        "./scripts/debloat-windows.ps1"
+        "./scripts/debloat-windows.ps1",
+        "./scripts/installWsus.ps1"
       ],
       "type": "powershell"
     },
     {
       "restart_timeout": "{{user `restart_timeout`}}",
       "type": "windows-restart"
+    },
+    {
+      "scripts": [
+        "./scripts/configureWsus.ps1"
+      ],
+      "type": "powershell"
     },
     {
       "execute_command": "{{ .Vars }} cmd /c \"{{ .Path }}\"",
